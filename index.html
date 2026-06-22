@@ -1,0 +1,784 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>리그 기록 아카이브</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+  :root{
+    --court:#C8742E;        /* 코트 우드 톤 오렌지 */
+    --court-dark:#A85A1C;
+    --paint:#1C2A3A;        /* 페인트존 네이비 */
+    --paint-light:#2A3D52;
+    --line:#F4EBDD;         /* 코트 라인 크림 */
+    --ink:#14202E;
+    --net:#E8DFD0;
+    --accent:#FF6B35;
+    --win:#4CAF7D;
+    --mute:#8B97A5;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{
+    font-family:'Helvetica Neue',Arial,sans-serif;
+    background:var(--paint);
+    color:var(--line);
+    min-height:100vh;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:1180px;margin:0 auto;padding:0 20px 80px}
+
+  /* HERO */
+  header.hero{
+    background:
+      repeating-linear-gradient(90deg,transparent,transparent 78px,rgba(244,235,221,.04) 78px,rgba(244,235,221,.04) 80px),
+      linear-gradient(135deg,var(--court) 0%,var(--court-dark) 100%);
+    border-bottom:3px solid var(--line);
+    padding:46px 0 38px;
+    position:relative;
+    overflow:hidden;
+  }
+  .hero::after{
+    content:"";position:absolute;right:-90px;top:50%;transform:translateY(-50%);
+    width:280px;height:280px;border:3px solid rgba(244,235,221,.25);border-radius:50%;
+  }
+  .hero-inner{max-width:1180px;margin:0 auto;padding:0 20px;position:relative;z-index:2}
+  .eyebrow{
+    font-size:12px;letter-spacing:.42em;text-transform:uppercase;
+    color:var(--line);opacity:.85;font-weight:700;margin-bottom:10px;
+  }
+  h1{
+    font-size:clamp(34px,6vw,62px);font-weight:900;letter-spacing:-.02em;
+    color:#fff;line-height:.95;text-shadow:0 2px 0 rgba(0,0,0,.18);
+  }
+  h1 .num{
+    font-family:'Courier New',monospace;color:var(--paint);
+    background:var(--line);padding:0 12px;border-radius:6px;margin-left:6px;
+  }
+  .sub{margin-top:14px;font-size:15px;color:var(--line);opacity:.9;max-width:560px;line-height:1.55}
+
+  /* UPLOAD BAR */
+  .actionbar{
+    display:flex;gap:14px;flex-wrap:wrap;align-items:center;
+    margin-top:26px;
+  }
+  .btn{
+    font-weight:700;font-size:14px;letter-spacing:.02em;border:none;cursor:pointer;
+    padding:13px 22px;border-radius:8px;display:inline-flex;align-items:center;gap:8px;
+    transition:transform .12s ease,box-shadow .12s ease;
+  }
+  .btn:active{transform:translateY(1px)}
+  .btn-primary{background:var(--paint);color:#fff;box-shadow:0 4px 0 rgba(0,0,0,.25)}
+  .btn-primary:hover{box-shadow:0 6px 0 rgba(0,0,0,.25)}
+  .btn-ghost{background:transparent;color:var(--line);border:2px solid var(--line)}
+  .btn-ghost:hover{background:rgba(244,235,221,.12)}
+  .btn-danger{background:transparent;color:#FFD2C2;border:2px solid rgba(255,107,53,.55);font-size:13px;padding:10px 16px}
+  .btn-danger:hover{background:rgba(255,107,53,.12)}
+  #fileInput,#jsonInput{display:none}
+  .adminhint{margin-top:14px;font-size:13px;color:var(--paint);background:rgba(244,235,221,.85);padding:10px 14px;border-radius:8px;display:inline-block;font-weight:600}
+  .adminhint b{color:var(--court-dark)}
+
+  .toast{
+    position:fixed;left:50%;bottom:30px;transform:translateX(-50%) translateY(120px);
+    background:var(--paint-light);border:1px solid rgba(244,235,221,.25);
+    color:var(--line);padding:14px 22px;border-radius:10px;font-size:14px;font-weight:600;
+    box-shadow:0 10px 30px rgba(0,0,0,.4);transition:transform .3s cubic-bezier(.2,1,.3,1);z-index:200;
+  }
+  .toast.show{transform:translateX(-50%) translateY(0)}
+  .toast.err{border-color:var(--accent);color:#FFD2C2}
+
+  /* SUMMARY STRIP */
+  .strip{
+    display:grid;grid-template-columns:repeat(4,1fr);gap:1px;
+    background:rgba(244,235,221,.18);border:1px solid rgba(244,235,221,.18);
+    border-radius:12px;overflow:hidden;margin-top:34px;
+  }
+  .strip .cell{background:var(--paint-light);padding:20px 18px}
+  .strip .k{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--mute);font-weight:700}
+  .strip .v{font-family:'Courier New',monospace;font-size:30px;font-weight:700;color:#fff;margin-top:6px;line-height:1}
+  @media(max-width:680px){.strip{grid-template-columns:repeat(2,1fr)}}
+
+  /* SECTION HEAD */
+  .sec-head{display:flex;align-items:baseline;justify-content:space-between;margin:46px 0 16px;flex-wrap:wrap;gap:12px}
+  .sec-head h2{font-size:22px;font-weight:900;letter-spacing:-.01em;color:#fff}
+  .sec-head .hint{font-size:13px;color:var(--mute)}
+
+  /* TABLE */
+  .tablewrap{background:var(--paint-light);border:1px solid rgba(244,235,221,.14);border-radius:12px;overflow:hidden}
+  .scroll{overflow-x:auto}
+  table{width:100%;border-collapse:collapse;min-width:880px}
+  thead th{
+    background:var(--ink);color:var(--line);font-size:11px;letter-spacing:.08em;text-transform:uppercase;
+    font-weight:700;padding:14px 12px;text-align:right;white-space:nowrap;cursor:pointer;user-select:none;
+    border-bottom:2px solid var(--court);position:relative;
+  }
+  thead th:first-child,tbody td:first-child{text-align:left;position:sticky;left:0;z-index:1}
+  thead th:first-child{background:var(--ink)}
+  thead th.rank,tbody td.rank{text-align:center;width:46px}
+  thead th:hover{color:#fff}
+  thead th .arrow{font-size:9px;margin-left:3px;opacity:.5}
+  thead th.sorted .arrow{opacity:1;color:var(--accent)}
+  tbody td{padding:13px 12px;text-align:right;font-family:'Courier New',monospace;font-size:14px;border-bottom:1px solid rgba(244,235,221,.07);white-space:nowrap}
+  tbody td:first-child{font-family:'Helvetica Neue',Arial,sans-serif;font-weight:700;background:var(--paint-light);color:#fff}
+  tbody tr:hover td{background:rgba(255,107,53,.06)}
+  tbody tr:hover td:first-child{background:rgba(255,107,53,.12)}
+  td.eff{color:var(--win);font-weight:700}
+  td.rank{color:var(--court);font-weight:700;font-family:'Courier New',monospace}
+  tr.top1 td.rank{color:#FFD24A}
+  .pts{color:#fff;font-weight:700}
+
+  .empty{padding:70px 24px;text-align:center;color:var(--mute)}
+  .empty .ball{font-size:50px;margin-bottom:14px;opacity:.4}
+  .pointswrap{border-color:rgba(255,210,74,.35)}
+  .pointswrap thead th{border-bottom-color:#FFD24A}
+  .pointswrap td.pts{color:#FFD24A;font-weight:700;font-size:16px}
+  .pointswrap tr.medal1 td:first-child::before{content:"🥇 ";font-size:13px}
+  .pointswrap tr.medal2 td:first-child::before{content:"🥈 ";font-size:13px}
+  .pointswrap tr.medal3 td:first-child::before{content:"🥉 ";font-size:13px}
+
+  /* LEADERS */
+  .leaders{display:grid;grid-template-columns:repeat(5,1fr);gap:12px}
+  @media(max-width:760px){.leaders{grid-template-columns:repeat(2,1fr)}}
+  @media(max-width:420px){.leaders{grid-template-columns:1fr}}
+  .lcard{background:var(--paint-light);border:1px solid rgba(244,235,221,.14);border-radius:12px;padding:18px 16px;text-align:center;position:relative;overflow:hidden}
+  .lcard::before{content:"";position:absolute;top:0;left:0;right:0;height:3px;background:var(--court)}
+  .lcard .cat{font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--court);font-weight:800}
+  .lcard .who{font-size:18px;font-weight:900;color:#fff;margin-top:10px;line-height:1.2;word-break:keep-all}
+  .lcard .tot{font-family:'Courier New',monospace;font-size:34px;font-weight:700;color:#fff;margin-top:8px;line-height:1}
+  .lcard .avg{font-size:12px;color:var(--mute);margin-top:6px}
+  .lcard .avg b{color:var(--net);font-family:'Courier New',monospace}
+  .empty p{font-size:15px;line-height:1.6;max-width:440px;margin:0 auto}
+
+  /* GAME LOG */
+  .gamelog{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px;margin-top:6px}
+  .gcard{background:var(--paint-light);border:1px solid rgba(244,235,221,.14);border-radius:10px;padding:16px 16px 14px;position:relative}
+  .gcard .date{font-family:'Courier New',monospace;font-size:15px;font-weight:700;color:#fff}
+  .gcard .meta{font-size:12px;color:var(--mute);margin-top:6px}
+  .gcard .del{position:absolute;top:10px;right:10px;background:none;border:none;color:var(--mute);cursor:pointer;font-size:16px;line-height:1;padding:4px}
+  .gcard .del:hover{color:var(--accent)}
+
+  footer{margin-top:60px;padding-top:24px;border-top:1px solid rgba(244,235,221,.12);font-size:12px;color:var(--mute);line-height:1.7}
+  footer code{background:rgba(244,235,221,.1);padding:1px 6px;border-radius:4px;font-size:11px}
+
+  /* player modal */
+  .modal-bg{position:fixed;inset:0;background:rgba(10,16,24,.7);display:none;align-items:center;justify-content:center;z-index:150;padding:20px}
+  .modal-bg.show{display:flex}
+  .modal{background:var(--paint);border:1px solid rgba(244,235,221,.2);border-radius:14px;max-width:520px;width:100%;padding:28px;position:relative}
+  .modal h3{font-size:24px;color:#fff;font-weight:900}
+  .modal .close{position:absolute;top:16px;right:16px;background:none;border:none;color:var(--mute);font-size:22px;cursor:pointer}
+  .mstats{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:rgba(244,235,221,.15);border-radius:10px;overflow:hidden;margin-top:20px}
+  .mstats .mc{background:var(--paint-light);padding:14px}
+  .mstats .mk{font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--mute);font-weight:700}
+  .mstats .mv{font-family:'Courier New',monospace;font-size:22px;color:#fff;font-weight:700;margin-top:4px}
+  .mstats .mv small{font-size:12px;color:var(--mute)}
+</style>
+</head>
+<body>
+<header class="hero">
+  <div class="hero-inner">
+    <div class="eyebrow">Weekly Basketball League · Record Archive</div>
+    <h1>리그 기록 아카이브 <span class="num">STATS</span></h1>
+    <p class="sub" id="heroSub">동호회 리그의 시즌 누적 기록입니다. 선수 이름 기준으로 매 경기 스탯이 합산됩니다.</p>
+    <div class="actionbar" id="adminBar" style="display:none">
+      <button class="btn btn-primary" onclick="document.getElementById('fileInput').click()">＋ 기록지 업로드</button>
+      <input type="file" id="fileInput" accept=".xlsx,.xls,.csv" multiple>
+      <a class="btn btn-ghost" id="tplLink" download="리그기록지_템플릿.xlsx">↓ 템플릿 받기</a>
+      <button class="btn btn-ghost" onclick="exportData()">⬇ data.json 내보내기</button>
+      <button class="btn btn-ghost" onclick="document.getElementById('jsonInput').click()">⬆ data.json 가져오기</button>
+      <input type="file" id="jsonInput" accept=".json">
+      <button class="btn btn-danger" onclick="resetAll()">전체 초기화</button>
+    </div>
+    <div class="adminhint" id="adminHint" style="display:none">관리자 모드 · 업로드 후 <b>data.json 내보내기</b>로 받은 파일을 프로젝트의 같은 파일에 교체해 다시 배포하세요.</div>
+  </div>
+</header>
+
+<div class="wrap">
+  <div class="strip">
+    <div class="cell"><div class="k">등록 선수</div><div class="v" id="sPlayers">0</div></div>
+    <div class="cell"><div class="k">누적 경기일</div><div class="v" id="sDays">0</div></div>
+    <div class="cell"><div class="k">누적 경기수</div><div class="v" id="sGames">0</div></div>
+    <div class="cell"><div class="k">최고 공헌도</div><div class="v" id="sEff">0</div></div>
+  </div>
+
+  <div class="sec-head">
+    <h2>개인 승점 순위</h2>
+    <span class="hint">승 3점 · 무 1점 · 패 1점 · 열 제목을 누르면 정렬됩니다</span>
+  </div>
+  <div class="tablewrap pointswrap">
+    <div class="scroll">
+      <table id="pointTable">
+        <thead><tr id="pointHead"></tr></thead>
+        <tbody id="pointBody"></tbody>
+      </table>
+    </div>
+    <div class="empty" id="pointEmpty">
+      <div class="ball">🏆</div>
+      <p>승점 기록이 없습니다. 기록지의 <b>승무패</b> 칸에 승 / 무 / 패를 입력하면 됩니다. 승점은 승 3점 · 무 1점 · 패 1점으로 집계됩니다.</p>
+    </div>
+  </div>
+
+  <div class="sec-head">
+    <h2>평균 스탯</h2>
+    <span class="hint">경기당 수치 · 열 제목을 누르면 정렬됩니다</span>
+  </div>
+  <div class="tablewrap">
+    <div class="scroll">
+      <table id="avgTable">
+        <thead><tr id="avgHead"></tr></thead>
+        <tbody id="avgBody"></tbody>
+      </table>
+    </div>
+    <div class="empty" id="avgEmpty">
+      <div class="ball">📊</div>
+      <p>아직 등록된 기록이 없습니다. 시즌이 시작되면 경기당 평균 스탯이 표시됩니다.</p>
+    </div>
+  </div>
+
+  <div class="sec-head">
+    <h2>시즌 누적 스탯</h2>
+    <span class="hint">열 제목을 누르면 정렬됩니다 · 선수 이름을 누르면 평균 스탯을 봅니다</span>
+  </div>
+  <div class="tablewrap">
+    <div class="scroll">
+      <table id="statTable">
+        <thead><tr id="headRow"></tr></thead>
+        <tbody id="statBody"></tbody>
+      </table>
+    </div>
+    <div class="empty" id="emptyState">
+      <div class="ball">🏀</div>
+      <p>아직 등록된 기록이 없습니다. 시즌이 시작되면 이곳에 누적 스탯이 표시됩니다.</p>
+    </div>
+  </div>
+
+  <div class="sec-head" id="leaderHead" style="display:none">
+    <h2>부문별 1위</h2>
+    <span class="hint">누적 기준 · 이름 / 누적 / 경기당 평균</span>
+  </div>
+  <div class="leaders" id="leaders"></div>
+
+  <div class="sec-head" id="logHead" style="display:none">
+    <h2>업로드된 경기</h2>
+    <span class="hint">경기 단위로 삭제할 수 있습니다</span>
+  </div>
+  <div class="gamelog" id="gameLog"></div>
+
+  <footer>
+    <div><b>스탯 정의</b> · 승점 = 승×3 + 무×2 + 패×1 ·
+    득점 = 3점×3 + 2점×2 + 1점×1 ·
+    공헌도(EFF) = 득점×1.0 + 리바운드×1.1 + 어시스트×1.5 + 스틸×2.5 + 블락×1.3 − 파울 ·
+    출전일수 = 서로 다른 날짜 수 · 출전경기수 = 서로 다른 경기번호 수</div>
+    <div style="margin-top:8px">업로드 형식: 1행 <code>경기번호 | YYMMDD-N</code> (예: 260622-1, 하루 최대 3경기는 끝자리 1·2·3), 4행 헤더(<code>선수명 승무패 3점성공 2점성공 1점성공 어시스트 리바운드 스틸 블락 파울</code>), 5행부터 선수별 기록. <b>승무패 칸은 승 / 무 / 패 글자로 입력</b>하며, 승점은 승 3점·무 1점·패 1점으로 부여됩니다. 한 파일은 한 경기이며, 같은 경기번호는 중복 처리됩니다. 데이터는 서버로 전송되지 않고 브라우저에만 저장됩니다.</div>
+  </footer>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<div class="modal-bg" id="modalBg" onclick="if(event.target===this)closeModal()">
+  <div class="modal">
+    <button class="close" onclick="closeModal()">✕</button>
+    <h3 id="mName"></h3>
+    <div id="mGames" style="font-size:13px;color:var(--mute);margin-top:6px"></div>
+    <div class="mstats" id="mStats"></div>
+  </div>
+</div>
+
+<script>
+const STAT_KEYS = ["fg3","fg2","ft","ast","reb","stl","blk","foul"];
+const HEADER_MAP = {
+  "승무패":"wld","승패":"wld","결과":"wld","wld":"wld","wl":"wld",
+  "3점성공":"fg3","3점":"fg3","three":"fg3",
+  "2점성공":"fg2","2점":"fg2","two":"fg2",
+  "자유투성공":"ft","자유투":"ft","1점성공":"ft","1점":"ft","+1성공":"ft","+1":"ft","ft":"ft",
+  "어시스트":"ast","어시":"ast","ast":"ast",
+  "리바운드":"reb","리바":"reb","reb":"reb",
+  "스틸":"stl","stl":"stl",
+  "블락":"blk","블록":"blk","blk":"blk",
+  "파울":"foul","파울수":"foul","foul":"foul",
+  "선수명":"name","이름":"name","name":"name","선수":"name"
+};
+// 경기번호: YYMMDD-N (예: 260622-1). 날짜부분=앞 6자리, 경기=전체 식별자
+function gameDay(gameNo){ const m=String(gameNo).match(/^(\d{6})/); return m?m[1]:String(gameNo); }
+function prettyDay(day){ // 260622 -> 2026-06-22
+  const m=String(day).match(/^(\d{2})(\d{2})(\d{2})$/);
+  return m?`20${m[1]}-${m[2]}-${m[3]}`:String(day);
+}
+const COLS = [
+  {k:"rank",label:"#",cls:"rank"},
+  {k:"name",label:"선수"},
+  {k:"days",label:"출전일"},
+  {k:"games",label:"경기"},
+  {k:"pts",label:"득점",cls:"pts"},
+  {k:"fg3",label:"3점"},
+  {k:"fg2",label:"2점"},
+  {k:"ft",label:"1점"},
+  {k:"ast",label:"AST"},
+  {k:"reb",label:"REB"},
+  {k:"stl",label:"STL"},
+  {k:"blk",label:"BLK"},
+  {k:"foul",label:"PF"},
+  {k:"eff",label:"공헌도",cls:"eff"},
+];
+const PCOLS = [
+  {k:"rank",label:"#",cls:"rank"},
+  {k:"name",label:"선수"},
+  {k:"played",label:"경기"},
+  {k:"win",label:"승"},
+  {k:"draw",label:"무"},
+  {k:"loss",label:"패"},
+  {k:"points",label:"승점",cls:"pts"},
+];
+// 평균 스탯: 경기당 수치 (avgKey = 누적키)
+const ACOLS = [
+  {k:"rank",label:"#",cls:"rank"},
+  {k:"name",label:"선수"},
+  {k:"games",label:"경기",raw:true},
+  {k:"pts",label:"득점",cls:"pts"},
+  {k:"fg3",label:"3점"},
+  {k:"fg2",label:"2점"},
+  {k:"ft",label:"1점"},
+  {k:"ast",label:"AST"},
+  {k:"reb",label:"REB"},
+  {k:"stl",label:"STL"},
+  {k:"blk",label:"BLK"},
+  {k:"foul",label:"PF"},
+  {k:"eff",label:"공헌도",cls:"eff"},
+];
+
+// ===== storage (data.json 분리: 회원은 보기 전용, 운영자는 ?admin) =====
+const DB="leagueStatsV1";
+let games = []; // {id, gameNo, rows:[{name, wld, fg3,...}]}
+const IS_ADMIN = /[?&#]admin\b/.test(location.search+location.hash);
+
+function load(){ try{games=JSON.parse(localStorage.getItem(DB))||[]}catch(e){games=[]} }
+function save(){ if(IS_ADMIN){ try{localStorage.setItem(DB, JSON.stringify(games));}catch(e){} } }
+
+async function boot(){
+  if(IS_ADMIN){
+    document.getElementById("adminBar").style.display="flex";
+    document.getElementById("adminHint").style.display="inline-block";
+    document.getElementById("heroSub").textContent="관리자 모드입니다. 기록지를 업로드해 누적한 뒤 data.json을 내보내 배포에 반영하세요.";
+  }
+  let remote=null;
+  try{
+    const res=await fetch("data.json?ts="+Date.now());
+    if(res.ok){ const j=await res.json(); if(Array.isArray(j))remote=j; else if(j&&Array.isArray(j.games))remote=j.games; }
+  }catch(e){ /* 파일 없음 또는 로컬 file:// 환경 */ }
+
+  if(IS_ADMIN){
+    load();
+    if(!games.length && remote) games=remote;
+  }else{
+    games = remote || [];
+  }
+  render();
+}
+
+// ===== aggregation =====
+function aggregate(){
+  const map={};
+  const dayset={};   // 선수별 서로 다른 날짜
+  const gameset={};  // 선수별 서로 다른 경기번호
+  games.forEach(g=>{
+    g.rows.forEach(r=>{
+      const n=r.name;
+      if(!map[n]){map[n]={name:n,fg3:0,fg2:0,ft:0,ast:0,reb:0,stl:0,blk:0,foul:0,win:0,draw:0,loss:0};dayset[n]=new Set();gameset[n]=new Set();}
+      gameset[n].add(g.gameNo);
+      dayset[n].add(gameDay(g.gameNo));
+      STAT_KEYS.forEach(k=>map[n][k]+=(+r[k]||0));
+      if(r.wld==="win")map[n].win++;
+      else if(r.wld==="draw")map[n].draw++;
+      else if(r.wld==="loss")map[n].loss++;
+    });
+  });
+  return Object.values(map).map(p=>{
+    p.days=dayset[p.name].size;
+    p.games=gameset[p.name].size;
+    p.pts=p.fg3*3+p.fg2*2+p.ft;
+    p.eff=Math.round((p.pts*1.0+p.reb*1.1+p.ast*1.5+p.stl*2.5+p.blk*1.3-p.foul)*10)/10;
+    p.points=p.win*3+p.draw*1+p.loss*1;  // 승점 (승3 무1 패1)
+    p.played=p.win+p.draw+p.loss;
+    return p;
+  });
+}
+
+let sortKey="eff", sortDir=-1;
+let pSortKey="points", pSortDir=-1;
+let aSortKey="pts", aSortDir=-1;
+function render(){
+  const data=aggregate();
+  const empty=document.getElementById("emptyState");
+  const table=document.getElementById("statTable");
+  if(!data.length){empty.style.display="block";table.style.display="none";}
+  else{empty.style.display="none";table.style.display="table";}
+
+  // summary
+  document.getElementById("sPlayers").textContent=data.length;
+  document.getElementById("sDays").textContent=new Set(games.map(g=>gameDay(g.gameNo))).size;
+  document.getElementById("sGames").textContent=games.length;
+  document.getElementById("sEff").textContent=data.length?Math.max(...data.map(p=>p.eff)):0;
+
+  renderPoints(data);
+  renderAvg(data);
+  renderLeaders(data);
+
+  // header
+  const hr=document.getElementById("headRow");
+  hr.innerHTML="";
+  COLS.forEach(c=>{
+    const th=document.createElement("th");
+    th.className=(c.cls==="rank"?"rank ":"")+(c.k===sortKey?"sorted":"");
+    th.innerHTML=c.label+(c.k!=="rank"?'<span class="arrow">'+(c.k===sortKey?(sortDir<0?"▼":"▲"):"▼")+'</span>':"");
+    if(c.k!=="rank")th.onclick=()=>{if(sortKey===c.k)sortDir*=-1;else{sortKey=c.k;sortDir=(c.k==="name"||c.k==="foul")?1:-1;}render();};
+    hr.appendChild(th);
+  });
+
+  // sort
+  data.sort((a,b)=>{
+    let va=a[sortKey],vb=b[sortKey];
+    if(sortKey==="name")return va.localeCompare(vb,'ko')*sortDir;
+    return (va-vb)*sortDir;
+  });
+
+  const body=document.getElementById("statBody");
+  body.innerHTML="";
+  data.forEach((p,i)=>{
+    const tr=document.createElement("tr");
+    if(sortKey==="eff"&&sortDir<0&&i===0)tr.className="top1";
+    COLS.forEach(c=>{
+      const td=document.createElement("td");
+      if(c.k==="rank"){td.className="rank";td.textContent=i+1;}
+      else if(c.k==="name"){td.textContent=p.name;td.style.cursor="pointer";td.onclick=()=>showPlayer(p);}
+      else{td.className=c.cls||"";td.textContent=p[c.k];}
+      tr.appendChild(td);
+    });
+    body.appendChild(tr);
+  });
+
+  // game log
+  const log=document.getElementById("gameLog");
+  const logHead=document.getElementById("logHead");
+  log.innerHTML="";
+  if(games.length){logHead.style.display="flex";}else{logHead.style.display="none";}
+  [...games].sort((a,b)=>b.gameNo.localeCompare(a.gameNo)).forEach(g=>{
+    const div=document.createElement("div");
+    div.className="gcard";
+    const totalPts=g.rows.reduce((a,r)=>a+(+r.fg3||0)*3+(+r.fg2||0)*2+(+r.ft||0),0);
+    div.innerHTML=`<button class="del" title="이 경기 삭제" onclick="delGame('${g.id}')">✕</button>
+      <div class="date">${g.gameNo}</div>
+      <div class="meta">${prettyDay(gameDay(g.gameNo))} · ${g.rows.length}명 · 총 ${totalPts}득점</div>`;
+    log.appendChild(div);
+  });
+}
+
+function renderLeaders(data){
+  const head=document.getElementById("leaderHead");
+  const box=document.getElementById("leaders");
+  if(!data.length){head.style.display="none";box.innerHTML="";return;}
+  head.style.display="flex";
+
+  const cats=[
+    {k:"pts",label:"득점"},
+    {k:"reb",label:"리바운드"},
+    {k:"ast",label:"어시스트"},
+    {k:"stl",label:"스틸"},
+    {k:"blk",label:"블락"},
+  ];
+  box.innerHTML=cats.map(c=>{
+    const top=[...data].sort((a,b)=>b[c.k]-a[c.k])[0];
+    const g=top.games||1;
+    const avg=(top[c.k]/g).toFixed(1);
+    return `<div class="lcard">
+      <div class="cat">${c.label}</div>
+      <div class="who">${top[c.k]>0?top.name:"—"}</div>
+      <div class="tot">${top[c.k]}</div>
+      <div class="avg">경기당 <b>${avg}</b></div>
+    </div>`;
+  }).join("");
+}
+
+function renderPoints(data){
+  const ptable=document.getElementById("pointTable");
+  const pempty=document.getElementById("pointEmpty");
+  const withGames=data.filter(p=>p.played>0);
+  if(!withGames.length){pempty.style.display="block";ptable.style.display="none";}
+  else{pempty.style.display="none";ptable.style.display="table";}
+
+  const ph=document.getElementById("pointHead");
+  ph.innerHTML="";
+  PCOLS.forEach(c=>{
+    const th=document.createElement("th");
+    th.className=(c.cls==="rank"?"rank ":"")+(c.k===pSortKey?"sorted":"");
+    th.innerHTML=c.label+(c.k!=="rank"?'<span class="arrow">'+(c.k===pSortKey?(pSortDir<0?"▼":"▲"):"▼")+'</span>':"");
+    if(c.k!=="rank")th.onclick=()=>{if(pSortKey===c.k)pSortDir*=-1;else{pSortKey=c.k;pSortDir=(c.k==="name"||c.k==="loss")?1:-1;}render();};
+    ph.appendChild(th);
+  });
+
+  withGames.sort((a,b)=>{
+    let va=a[pSortKey],vb=b[pSortKey];
+    if(pSortKey==="name")return va.localeCompare(vb,'ko')*pSortDir;
+    if(va===vb && pSortKey==="points")return (b.win-a.win); // 동점시 승 많은 순
+    return (va-vb)*pSortDir;
+  });
+
+  const pb=document.getElementById("pointBody");
+  pb.innerHTML="";
+  withGames.forEach((p,i)=>{
+    const tr=document.createElement("tr");
+    if(pSortKey==="points"&&pSortDir<0&&i<3)tr.className="medal"+(i+1);
+    PCOLS.forEach(c=>{
+      const td=document.createElement("td");
+      if(c.k==="rank"){td.className="rank";td.textContent=i+1;}
+      else if(c.k==="name"){td.textContent=p.name;}
+      else{td.className=c.cls||"";td.textContent=p[c.k];}
+      tr.appendChild(td);
+    });
+    pb.appendChild(tr);
+  });
+}
+
+function renderAvg(data){
+  const atable=document.getElementById("avgTable");
+  const aempty=document.getElementById("avgEmpty");
+  const withGames=data.filter(p=>p.games>0);
+  if(!withGames.length){aempty.style.display="block";atable.style.display="none";return;}
+  aempty.style.display="none";atable.style.display="table";
+
+  // 평균값을 미리 계산 (경기당)
+  const rows=withGames.map(p=>{
+    const g=p.games||1;
+    const a={name:p.name,games:p.games};
+    ["pts","fg3","fg2","ft","ast","reb","stl","blk","foul","eff"].forEach(k=>{
+      a[k]=Math.round((p[k]/g)*10)/10;
+    });
+    return a;
+  });
+
+  const ah=document.getElementById("avgHead");
+  ah.innerHTML="";
+  ACOLS.forEach(c=>{
+    const th=document.createElement("th");
+    th.className=(c.cls==="rank"?"rank ":"")+(c.k===aSortKey?"sorted":"");
+    th.innerHTML=c.label+(c.k!=="rank"?'<span class="arrow">'+(c.k===aSortKey?(aSortDir<0?"▼":"▲"):"▼")+'</span>':"");
+    if(c.k!=="rank")th.onclick=()=>{if(aSortKey===c.k)aSortDir*=-1;else{aSortKey=c.k;aSortDir=(c.k==="name"||c.k==="foul")?1:-1;}render();};
+    ah.appendChild(th);
+  });
+
+  rows.sort((a,b)=>{
+    let va=a[aSortKey],vb=b[aSortKey];
+    if(aSortKey==="name")return va.localeCompare(vb,'ko')*aSortDir;
+    return (va-vb)*aSortDir;
+  });
+
+  const ab=document.getElementById("avgBody");
+  ab.innerHTML="";
+  rows.forEach((p,i)=>{
+    const tr=document.createElement("tr");
+    ACOLS.forEach(c=>{
+      const td=document.createElement("td");
+      if(c.k==="rank"){td.className="rank";td.textContent=i+1;}
+      else if(c.k==="name"){td.textContent=p.name;td.style.cursor="pointer";td.onclick=()=>{const orig=data.find(d=>d.name===p.name);if(orig)showPlayer(orig);};}
+      else if(c.raw){td.className=c.cls||"";td.textContent=p[c.k];}
+      else{td.className=c.cls||"";td.textContent=(p[c.k]).toFixed(1);}
+      tr.appendChild(td);
+    });
+    ab.appendChild(tr);
+  });
+}
+
+function showPlayer(p){
+  document.getElementById("mName").textContent=p.name;
+  document.getElementById("mGames").textContent=`${p.days}일 출전 · ${p.games}경기 (경기당 평균)`;
+  const g=p.games||1;
+  const avg=v=>(v/g).toFixed(1);
+  const cells=[
+    ["득점",avg(p.pts)],["공헌도",avg(p.eff)],["리바운드",avg(p.reb)],
+    ["어시스트",avg(p.ast)],["스틸",avg(p.stl)],["블락",avg(p.blk)],
+    ["3점",avg(p.fg3)],["2점",avg(p.fg2)],["파울",avg(p.foul)],
+  ];
+  document.getElementById("mStats").innerHTML=cells.map(c=>
+    `<div class="mc"><div class="mk">${c[0]} / 경기</div><div class="mv">${c[1]}</div></div>`).join("");
+  document.getElementById("modalBg").classList.add("show");
+}
+function closeModal(){document.getElementById("modalBg").classList.remove("show");}
+
+// ===== upload parsing =====
+function normHeader(h){ return String(h||"").trim().replace(/\s/g,"").toLowerCase(); }
+function findKey(raw){
+  const n=String(raw||"").trim();
+  if(HEADER_MAP[n])return HEADER_MAP[n];
+  const low=n.toLowerCase();
+  if(HEADER_MAP[low])return HEADER_MAP[low];
+  return null;
+}
+
+function parseSheet(rows, fname){
+  let gameNo=null, headerRowIdx=-1;
+  for(let i=0;i<rows.length;i++){
+    const r=rows[i]||[];
+    const first=String(r[0]||"").trim();
+    if(/경기번호|경기no|game/i.test(first)){
+      const gv=r[1]!=null&&r[1]!==""?r[1]:r[2];
+      gameNo=normGameNo(gv);
+    }
+    if(r.some(c=>{const k=findKey(c);return k==="name";}) && r.filter(c=>findKey(c)).length>=3){
+      headerRowIdx=i;break;
+    }
+  }
+  if(headerRowIdx<0) throw new Error("헤더 행(선수명 ...)을 찾지 못했습니다");
+  const header=rows[headerRowIdx].map(findKey);
+  const nameCol=header.indexOf("name");
+  if(nameCol<0) throw new Error("선수명 열이 없습니다");
+  if(!gameNo){
+    // 파일명에서 추출 시도
+    const m=fname.match(/(\d{6}-\d+)/);
+    gameNo=m?m[1]:null;
+  }
+  if(!gameNo) throw new Error("경기번호(예: 260622-1)를 찾지 못했습니다");
+
+  const out=[];
+  for(let i=headerRowIdx+1;i<rows.length;i++){
+    const r=rows[i]||[];
+    const name=String(r[nameCol]||"").trim();
+    if(!name)continue;
+    const rec={name};
+    STAT_KEYS.forEach(k=>{
+      const ci=header.indexOf(k);
+      rec[k]=ci>=0?(parseFloat(r[ci])||0):0;
+    });
+    const wci=header.indexOf("wld");
+    rec.wld = wci>=0?parseWLD(r[wci]):""; // "win"/"draw"/"loss"/"" (미기록)
+    out.push(rec);
+  }
+  if(!out.length)throw new Error("선수 기록 행이 없습니다");
+  return {gameNo,rows:out};
+}
+
+function parseWLD(v){
+  // 글자(승/무/패, W/D/L)와 기존 숫자(3/2/1) 모두 인식
+  const s=String(v==null?"":v).trim().toLowerCase();
+  if(s==="")return "";
+  if(/^(승|win|w|승리)$/.test(s)||s==="3")return "win";
+  if(/^(무|draw|d|tie|무승부)$/.test(s)||s==="2")return "draw";
+  if(/^(패|loss|lose|l|패배)$/.test(s)||s==="1")return "loss";
+  return "";
+}
+
+function normGameNo(v){
+  if(v==null||v==="")return null;
+  // 엑셀 날짜 숫자로 들어온 경우 방어: 그대로 두지 않고 문자열화
+  let s=String(v).trim();
+  // 260622-1 형식 우선
+  let m=s.match(/(\d{6})\s*-\s*(\d+)/);
+  if(m)return `${m[1]}-${m[2]}`;
+  // 2026-06-22-1 같은 형식 → 압축
+  m=s.match(/(\d{2})\d{0,2}\D?(\d{2})\D?(\d{2})\D+(\d+)\s*$/);
+  if(m)return `${m[1]}${m[2]}${m[3]}-${m[4]}`;
+  return s;
+}
+
+function handleFiles(files){
+  let added=0, skipped=0, errs=[];
+  let pending=files.length;
+  if(!pending)return;
+  Array.from(files).forEach(file=>{
+    const reader=new FileReader();
+    reader.onload=e=>{
+      try{
+        const wb=XLSX.read(e.target.result,{type:"array"});
+        const ws=wb.Sheets[wb.SheetNames[0]];
+        const rows=XLSX.utils.sheet_to_json(ws,{header:1,defval:""});
+        const parsed=parseSheet(rows,file.name);
+        if(games.some(g=>g.gameNo===parsed.gameNo)){
+          skipped++;
+        }else{
+          games.push({id:"g"+Date.now()+Math.random().toString(36).slice(2,6),gameNo:parsed.gameNo,rows:parsed.rows});
+          added++;
+        }
+      }catch(err){ errs.push(file.name+": "+err.message); }
+      if(--pending===0)finish();
+    };
+    reader.onerror=()=>{errs.push(file.name+": 읽기 실패");if(--pending===0)finish();};
+    reader.readAsArrayBuffer(file);
+  });
+  function finish(){
+    save();render();
+    let msg=[];
+    if(added)msg.push(`${added}경기 추가`);
+    if(skipped)msg.push(`${skipped}경기 중복 건너뜀`);
+    if(errs.length){toast("오류: "+errs[0],true);}
+    else toast(msg.join(" · ")||"변경 없음");
+  }
+}
+
+function delGame(id){
+  const g=games.find(x=>x.id===id);
+  if(!g)return;
+  if(!confirm(`${g.gameNo} 경기 기록을 삭제할까요?`))return;
+  games=games.filter(x=>x.id!==id);save();render();toast("경기를 삭제했습니다");
+}
+function resetAll(){
+  if(!games.length){toast("삭제할 데이터가 없습니다");return;}
+  if(!confirm("모든 기록을 삭제합니다. 되돌릴 수 없습니다. 계속할까요?"))return;
+  games=[];save();render();toast("전체 초기화 완료");
+}
+
+function exportData(){
+  if(!games.length){toast("내보낼 데이터가 없습니다",true);return;}
+  const payload={updated:new Date().toISOString(),games:games};
+  const blob=new Blob([JSON.stringify(payload,null,2)],{type:"application/json"});
+  const a=document.createElement("a");
+  a.href=URL.createObjectURL(blob);
+  a.download="data.json";
+  a.click();
+  toast("data.json 내보내기 완료 · 프로젝트에 교체 후 재배포하세요");
+}
+
+function importData(file){
+  const r=new FileReader();
+  r.onload=e=>{
+    try{
+      const j=JSON.parse(e.target.result);
+      const arr=Array.isArray(j)?j:(j&&Array.isArray(j.games)?j.games:null);
+      if(!arr)throw new Error("형식이 올바르지 않습니다");
+      games=arr;save();render();toast(`${games.length}경기 불러오기 완료`);
+    }catch(err){toast("가져오기 실패: "+err.message,true);}
+  };
+  r.readAsText(file);
+}
+
+let toastT;
+function toast(msg,err){
+  const t=document.getElementById("toast");
+  t.textContent=msg;t.className="toast show"+(err?" err":"");
+  clearTimeout(toastT);toastT=setTimeout(()=>t.className="toast"+(err?" err":""),3200);
+}
+
+document.getElementById("fileInput").addEventListener("change",e=>{handleFiles(e.target.files);e.target.value="";});
+document.getElementById("jsonInput").addEventListener("change",e=>{if(e.target.files[0])importData(e.target.files[0]);e.target.value="";});
+document.addEventListener("keydown",e=>{if(e.key==="Escape")closeModal();});
+
+// build template download (xlsx) on the fly
+function buildTemplate(){
+  const aoa=[
+    ["경기번호","260622-1"],
+    [],
+    [],
+    ["선수명","승무패","3점성공","2점성공","1점성공","어시스트","리바운드","스틸","블락","파울"],
+    ["김철수","승",3,5,2,4,7,2,1,2],
+    ["이영희","패",1,8,3,6,3,1,0,3],
+    ["박민수","무",5,2,1,2,9,3,2,1],
+  ];
+  const ws=XLSX.utils.aoa_to_sheet(aoa);
+  ws["!cols"]=[{wch:12},{wch:8},{wch:10},{wch:10},{wch:12},{wch:10},{wch:10},{wch:8},{wch:8},{wch:8}];
+  const wb=XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb,ws,"경기기록");
+  const wbout=XLSX.write(wb,{bookType:"xlsx",type:"array"});
+  const blob=new Blob([wbout],{type:"application/octet-stream"});
+  document.getElementById("tplLink").href=URL.createObjectURL(blob);
+}
+buildTemplate();
+boot();
+</script>
+</body>
+</html>
