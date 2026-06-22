@@ -308,16 +308,16 @@ const COLS = [
   {k:"name",label:"선수"},
   {k:"days",label:"출전일"},
   {k:"games",label:"경기"},
-  {k:"pts",label:"득점",cls:"pts"},
+  {k:"pts",label:"PTS",cls:"pts"},
+  {k:"reb",label:"REB"},
+  {k:"ast",label:"AST"},
+  {k:"stl",label:"STL"},
+  {k:"blk",label:"BLK"},
   {k:"fg3",label:"3점"},
   {k:"fg2",label:"2점"},
   {k:"ft",label:"1점"},
-  {k:"ast",label:"AST"},
-  {k:"reb",label:"REB"},
-  {k:"stl",label:"STL"},
-  {k:"blk",label:"BLK"},
   {k:"foul",label:"PF"},
-  {k:"eff",label:"공헌도",cls:"eff"},
+  {k:"eff",label:"EFF",cls:"eff"},
 ];
 const PCOLS = [
   {k:"rank",label:"#",cls:"rank"},
@@ -328,21 +328,20 @@ const PCOLS = [
   {k:"loss",label:"패"},
   {k:"points",label:"승점",cls:"pts"},
 ];
-// 평균 스탯: 경기당 수치 (avgKey = 누적키)
+// 평균 스탯: 경기당 수치 (출전일·경기수는 제외, 파울은 유지)
 const ACOLS = [
   {k:"rank",label:"#",cls:"rank"},
   {k:"name",label:"선수"},
-  {k:"games",label:"경기",raw:true},
-  {k:"pts",label:"득점",cls:"pts"},
+  {k:"pts",label:"PTS",cls:"pts"},
+  {k:"reb",label:"REB"},
+  {k:"ast",label:"AST"},
+  {k:"stl",label:"STL"},
+  {k:"blk",label:"BLK"},
   {k:"fg3",label:"3점"},
   {k:"fg2",label:"2점"},
   {k:"ft",label:"1점"},
-  {k:"ast",label:"AST"},
-  {k:"reb",label:"REB"},
-  {k:"stl",label:"STL"},
-  {k:"blk",label:"BLK"},
   {k:"foul",label:"PF"},
-  {k:"eff",label:"공헌도",cls:"eff"},
+  {k:"eff",label:"EFF",cls:"eff"},
 ];
 
 // ===== storage (data.json 분리: 회원은 보기 전용, 운영자는 ?admin) =====
