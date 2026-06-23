@@ -134,9 +134,16 @@
     font-weight:700;padding:14px 12px;text-align:right;white-space:nowrap;cursor:pointer;user-select:none;
     border-bottom:2px solid var(--court);position:relative;
   }
-  thead th:first-child,tbody td:first-child{text-align:left;position:sticky;left:0;z-index:1}
-  thead th:first-child{background:var(--ink)}
-  thead th.rank,tbody td.rank{text-align:center;width:46px}
+  thead th.rank,tbody td.rank{text-align:center;width:46px;min-width:46px}
+  /* 좌측 2열 고정: 1열=순위(left:0), 2열=이름(left:46px) */
+  thead th:nth-child(1),tbody td:nth-child(1){position:sticky;left:0;z-index:2}
+  thead th:nth-child(2),tbody td:nth-child(2){position:sticky;left:46px;z-index:2;text-align:left}
+  thead th:nth-child(1),thead th:nth-child(2){z-index:3}
+  thead th:nth-child(1),thead th:nth-child(2){background:var(--ink)}
+  tbody td:nth-child(1),tbody td:nth-child(2){background:var(--paint-light)}
+  /* 고정 2열 우측 경계선 */
+  thead th:nth-child(2),tbody td:nth-child(2){box-shadow:1px 0 0 rgba(244,235,221,.12)}
+  tbody tr:hover td:nth-child(1),tbody tr:hover td:nth-child(2){background:rgba(255,107,53,.12)}
   thead th:hover{color:#fff}
   thead th .arrow{font-size:9px;margin-left:3px;opacity:.5}
   thead th.sorted .arrow{opacity:1;color:var(--accent)}
