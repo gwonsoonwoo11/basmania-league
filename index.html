@@ -138,6 +138,8 @@
   /* 좌측 2열 고정: 1열=순위(left:0), 2열=이름(left:46px) */
   thead th:nth-child(1),tbody td:nth-child(1){position:sticky;left:0;z-index:2}
   thead th:nth-child(2),tbody td:nth-child(2){position:sticky;left:46px;z-index:2;text-align:left}
+  /* 이름 열 폭 최소화 */
+  thead th:nth-child(2),tbody td:nth-child(2){width:58px;min-width:58px;max-width:58px;padding-left:8px;padding-right:6px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
   thead th:nth-child(1),thead th:nth-child(2){z-index:3}
   thead th:nth-child(1),thead th:nth-child(2){background:var(--ink)}
   tbody td:nth-child(1),tbody td:nth-child(2){background:var(--paint-light)}
@@ -159,6 +161,11 @@
   .empty{padding:70px 24px;text-align:center;color:var(--mute)}
   .empty .ball{font-size:50px;margin-bottom:14px;opacity:.4}
   .pointswrap{border-color:rgba(255,210,74,.35)}
+  #pointTable{min-width:0}
+  /* 승점 표: 마지막(승점) 열이 남는 공간을 흡수 */
+  #pointTable th:last-child,#pointTable td:last-child{width:auto}
+  #pointTable th:nth-child(2),#pointTable td:nth-child(2){width:80px;min-width:80px;max-width:80px}
+  #pointTable th:nth-child(n+3):not(:last-child),#pointTable td:nth-child(n+3):not(:last-child){width:60px;min-width:60px}
   .pointswrap thead th{border-bottom-color:#FFD24A}
   .pointswrap td.pts{color:#FFD24A;font-weight:700;font-size:16px}
   .pointswrap tr.medal1 td:first-child::before{content:"🥇 ";font-size:13px}
