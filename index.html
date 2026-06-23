@@ -471,6 +471,7 @@ function aggregate(){
     });
   });
   const totalGames=games.length||1;
+  const totalDays=new Set(games.map(g=>gameDay(g.gameNo))).size||1;  // 전체 누적 경기일
   return Object.values(map).map(p=>{
     p.days=dayset[p.name].size;
     p.games=gameset[p.name].size;
@@ -478,7 +479,7 @@ function aggregate(){
     p.eff=Math.round((p.pts*1.0+p.reb*1.1+p.ast*1.5+p.stl*2.5+p.blk*1.3-p.foul)*10)/10;
     p.points=p.win*3+p.draw*1+p.loss*1;  // 승점 (승3 무1 패1)
     p.played=p.win+p.draw+p.loss;
-    p.playRate=p.games/totalGames;       // 출전율 (전체 경기 대비)
+    p.playRate=p.days/totalDays;         // 출전율 (출전일 / 전체 누적 경기일)
     return p;
   });
 }
