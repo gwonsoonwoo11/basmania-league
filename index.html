@@ -143,10 +143,12 @@
   .lcard{background:var(--paint-light);border:1px solid rgba(244,235,221,.14);border-radius:12px;padding:18px 16px;text-align:center;position:relative;overflow:hidden}
   .lcard::before{content:"";position:absolute;top:0;left:0;right:0;height:3px;background:var(--court)}
   .lcard .cat{font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--court);font-weight:800}
-  .lcard .who{font-size:18px;font-weight:900;color:#fff;margin-top:10px;line-height:1.2;word-break:keep-all}
-  .lcard .tot{font-family:'Courier New',monospace;font-size:34px;font-weight:700;color:#fff;margin-top:8px;line-height:1}
-  .lcard .avg{font-size:12px;color:var(--mute);margin-top:6px}
-  .lcard .avg b{color:var(--net);font-family:'Courier New',monospace}
+  .lcard .lsplit{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
+  .lcard .lhalf{position:relative}
+  .lcard .lhalf:first-child::after{content:"";position:absolute;top:4px;bottom:4px;right:-5px;width:1px;background:rgba(244,235,221,.16)}
+  .lcard .lkind{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--mute);font-weight:700}
+  .lcard .who{font-size:15px;font-weight:900;color:#fff;margin-top:6px;line-height:1.2;word-break:keep-all}
+  .lcard .tot{font-family:'Courier New',monospace;font-size:24px;font-weight:700;color:#fff;margin-top:4px;line-height:1}
   .empty p{font-size:15px;line-height:1.6;max-width:440px;margin:0 auto}
 
   /* GAME LOG */
@@ -253,7 +255,7 @@
 
   <div class="sec-head" id="leaderHead" style="display:none">
     <h2>부문별 1위</h2>
-    <span class="hint">누적 기준 · 이름 / 누적 / 경기당 평균</span>
+    <span class="hint">평균 1위 · 누적 1위를 각각 표시
   </div>
   <div class="leaders" id="leaders"></div>
 
@@ -484,14 +486,26 @@ function renderLeaders(data){
     {k:"blk",label:"블락"},
   ];
   box.innerHTML=cats.map(c=>{
-    const top=[...data].sort((a,b)=>b[c.k]-a[c.k])[0];
-    const g=top.games||1;
-    const avg=(top[c.k]/g).toFixed(1);
+    // 누적 1위
+    const topTot=[...data].sort((a,b)=>b[c.k]-a[c.k])[0];
+    const totVal=topTot[c.k];
+    // 평균 1위 (경기당)
+    const topAvg=[...data].sort((a,b)=>(b[c.k]/(b.games||1))-(a[c.k]/(a.games||1)))[0];
+    const avgVal=(topAvg[c.k]/(topAvg.games||1)).toFixed(1);
     return `<div class="lcard">
       <div class="cat">${c.label}</div>
-      <div class="who">${top[c.k]>0?top.name:"—"}</div>
-      <div class="tot">${top[c.k]}</div>
-      <div class="avg">경기당 <b>${avg}</b></div>
+      <div class="lsplit">
+        <div class="lhalf">
+          <div class="lkind">평균</div>
+          <div class="who">${avgVal>0?topAvg.name:"—"}</div>
+          <div class="tot">${avgVal>0?avgVal:"—"}</div>
+        </div>
+        <div class="lhalf">
+          <div class="lkind">누적</div>
+          <div class="who">${totVal>0?topTot.name:"—"}</div>
+          <div class="tot">${totVal>0?totVal:"—"}</div>
+        </div>
+      </div>
     </div>`;
   }).join("");
 }
