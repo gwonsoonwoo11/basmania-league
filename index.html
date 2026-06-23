@@ -96,6 +96,7 @@
   .strip .cell{background:var(--paint-light);padding:20px 18px}
   .strip .k{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--mute);font-weight:700}
   .strip .v{font-family:'Courier New',monospace;font-size:30px;font-weight:700;color:#fff;margin-top:6px;line-height:1}
+  .strip .v.vname{font-family:'Helvetica Neue',Arial,sans-serif;font-size:22px;word-break:keep-all;overflow:hidden;text-overflow:ellipsis}
   @media(max-width:680px){.strip{grid-template-columns:repeat(2,1fr)}}
 
   /* SECTION HEAD */
@@ -175,7 +176,7 @@
   .mvpcard.mvp1 .mvpname{color:#3A2A05;font-size:18px;margin-top:4px;text-shadow:0 1px 0 rgba(255,255,255,.3)}
   .mvpcard.mvp1 .mvpeff{color:#2A1E03;font-size:38px;text-shadow:0 1px 0 rgba(255,255,255,.35)}
   .mvpcard.mvp1 .mvpefflabel{color:#5A4406}
-  .mvpcard.mvp1 .mvpline{color:#4A3704;font-weight:700}
+  .mvpcard.mvp1 .mvpline{color:#4A3704;font-weight:700;letter-spacing:-.03em}
   @keyframes mvpshine{0%,100%{box-shadow:0 0 0 4px rgba(255,210,74,.18),0 8px 30px rgba(224,169,46,.4)}50%{box-shadow:0 0 0 6px rgba(255,210,74,.3),0 8px 36px rgba(224,169,46,.6)}}
   .mvpcard.mvp1{animation:mvpshine 2.6s ease-in-out infinite}
   .empty p{font-size:15px;line-height:1.6;max-width:440px;margin:0 auto}
@@ -225,10 +226,10 @@
 
 <div class="wrap">
   <div class="strip">
-    <div class="cell"><div class="k">등록 선수</div><div class="v" id="sPlayers">0</div></div>
     <div class="cell"><div class="k">누적 경기일</div><div class="v" id="sDays">0</div></div>
-    <div class="cell"><div class="k">누적 경기수</div><div class="v" id="sGames">0</div></div>
-    <div class="cell"><div class="k">최고 공헌도</div><div class="v" id="sEff">0</div></div>
+    <div class="cell"><div class="k">등록 선수</div><div class="v" id="sPlayers">0</div></div>
+    <div class="cell"><div class="k">현재 1위</div><div class="v vname" id="sLeader">—</div></div>
+    <div class="cell"><div class="k">MVP 랭킹 1위</div><div class="v vname" id="sMvp">—</div></div>
   </div>
 
   <div class="sec-head">
@@ -451,10 +452,26 @@ function render(){
   else{empty.style.display="none";table.style.display="table";}
 
   // summary
-  document.getElementById("sPlayers").textContent=data.length;
   document.getElementById("sDays").textContent=new Set(games.map(g=>gameDay(g.gameNo))).size;
-  document.getElementById("sGames").textContent=games.length;
-  document.getElementById("sEff").textContent=data.length?Math.max(...data.map(p=>p.eff)):0;
+  document.getElementById("sPlayers").textContent=data.length;
+
+  // 현재 1위 = 개인 승점 순위 1위 (승점 내림차순, 동점 시 승 수)
+  const played=data.filter(p=>p.played>0);
+  let leaderName="—";
+  if(played.length){
+    const top=[...played].sort((a,b)=> (b.points-a.points) || (b.games-a.games))[0];
+    leaderName=top.name;
+  }
+  document.getElementById("sLeader").textContent=leaderName;
+
+  // MVP 랭킹 1위 = 평균 EFF 1위 (출전율 50% 이상)
+  const mvpEligible=data.filter(p=>p.playRate>=0.5 && p.games>0);
+  let mvpName="—";
+  if(mvpEligible.length){
+    const topM=[...mvpEligible].sort((a,b)=> (b.eff/(b.games||1)) - (a.eff/(a.games||1)) )[0];
+    mvpName=topM.name;
+  }
+  document.getElementById("sMvp").textContent=mvpName;
 
   renderPoints(data);
   renderAvg(data);
@@ -604,7 +621,7 @@ function renderPoints(data){
   withGames.sort((a,b)=>{
     let va=a[pSortKey],vb=b[pSortKey];
     if(pSortKey==="name")return va.localeCompare(vb,'ko')*pSortDir;
-    if(va===vb && pSortKey==="points")return (b.win-a.win); // 동점시 승 많은 순
+    if(va===vb && pSortKey==="points")return (b.games-a.games); // 동점시 출전 경기수 많은 순
     return (va-vb)*pSortDir;
   });
 
