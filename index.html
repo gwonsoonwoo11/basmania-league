@@ -455,11 +455,13 @@ function render(){
   document.getElementById("sDays").textContent=new Set(games.map(g=>gameDay(g.gameNo))).size;
   document.getElementById("sPlayers").textContent=data.length;
 
-  // 현재 1위 = 개인 승점 순위 1위 (승점 내림차순, 동점 시 승 수)
+  // 현재 1위 = 개인 승점 순위 1위 (승점 → 출전경기수 → 승 → 무 → 패)
   const played=data.filter(p=>p.played>0);
   let leaderName="—";
   if(played.length){
-    const top=[...played].sort((a,b)=> (b.points-a.points) || (b.games-a.games))[0];
+    const top=[...played].sort((a,b)=>
+      (b.points-a.points) || (b.games-a.games) || (b.win-a.win) || (b.draw-a.draw) || (b.loss-a.loss)
+    )[0];
     leaderName=top.name;
   }
   document.getElementById("sLeader").textContent=leaderName;
@@ -621,7 +623,14 @@ function renderPoints(data){
   withGames.sort((a,b)=>{
     let va=a[pSortKey],vb=b[pSortKey];
     if(pSortKey==="name")return va.localeCompare(vb,'ko')*pSortDir;
-    if(va===vb && pSortKey==="points")return (b.games-a.games); // 동점시 출전 경기수 많은 순
+    if(pSortKey==="points"){
+      // 1) 승점 → 2) 출전 경기수 → 3) 승 → 4) 무 → 5) 패
+      return (b.points-a.points)
+          || (b.games-a.games)
+          || (b.win-a.win)
+          || (b.draw-a.draw)
+          || (b.loss-a.loss);
+    }
     return (va-vb)*pSortDir;
   });
 
