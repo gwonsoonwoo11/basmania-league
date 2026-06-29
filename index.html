@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>리그 기록 아카이브</title>
+<title>농우회 토농리그</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <style>
   :root{
@@ -244,8 +244,8 @@
 <header class="hero">
   <div class="hero-inner">
     <div class="eyebrow">Weekly Basketball League · Record Archive</div>
-    <h1>리그 기록 아카이브 <span class="num">STATS</span></h1>
-    <p class="sub" id="heroSub">동호회 리그의 시즌 누적 기록입니다. 선수 이름 기준으로 매 경기 스탯이 합산됩니다.</p>
+    <h1>농우회 토농리그 <span class="num">STATS</span></h1>
+    <p class="sub" id="heroSub">농우회 토농 리그의 시즌 기록입니다.</p>
     <div class="actionbar" id="adminBar" style="display:none">
       <button class="btn btn-primary" onclick="document.getElementById('fileInput').click()">＋ 기록지 업로드</button>
       <input type="file" id="fileInput" accept=".xlsx,.xls,.csv" multiple>
@@ -346,7 +346,7 @@
   <footer>
     <div><b>스탯 정의</b> · 승점 = 승×3 + 무×2 + 패×1 ·
     득점 = 3점×3 + 2점×2 + 1점×1 ·
-    공헌도(EFF) = 득점×1.0 + 리바운드×1.1 + 어시스트×1.5 + 스틸×2.5 + 블락×1.3 − 파울 ·
+    공헌도(EFF) = 득점×1.0 + 리바운드×1.1 + 어시스트×1.8 + 스틸×2.0 + 블락×1.5 − 파울 ·
     출전일수 = 서로 다른 날짜 수 · 출전경기수 = 서로 다른 경기번호 수</div>
     <div style="margin-top:8px">업로드 형식: 1행 <code>경기번호 | YYMMDD-N</code> (예: 260622-1, 하루 최대 3경기는 끝자리 1·2·3), 4행 헤더(<code>선수명 승무패 3점성공 2점성공 1점성공 어시스트 리바운드 스틸 블락 파울</code>), 5행부터 선수별 기록. <b>승무패 칸은 승 / 무 / 패 글자로 입력</b>하며, 승점은 승 3점·무 1점·패 1점으로 부여됩니다. 한 파일은 한 경기이며, 같은 경기번호는 중복 처리됩니다. 데이터는 서버로 전송되지 않고 브라우저에만 저장됩니다.</div>
   </footer>
@@ -476,7 +476,7 @@ function aggregate(){
     p.days=dayset[p.name].size;
     p.games=gameset[p.name].size;
     p.pts=p.fg3*3+p.fg2*2+p.ft;
-    p.eff=Math.round((p.pts*1.0+p.reb*1.1+p.ast*1.5+p.stl*2.5+p.blk*1.3-p.foul)*10)/10;
+    p.eff=Math.round((p.pts*1.0+p.reb*1.1+p.ast*1.8+p.stl*2.0+p.blk*1.5-p.foul)*10)/10;
     p.points=p.win*3+p.draw*1+p.loss*1;  // 승점 (승3 무1 패1)
     p.played=p.win+p.draw+p.loss;
     p.playRate=p.days/totalDays;         // 출전율 (출전일 / 전체 누적 경기일)
