@@ -388,6 +388,7 @@ const COLS = [
   {k:"name",label:"선수"},
   {k:"days",label:"출전일"},
   {k:"games",label:"경기"},
+  {k:"eff",label:"EFF",cls:"eff"},
   {k:"pts",label:"PTS",cls:"pts"},
   {k:"reb",label:"REB"},
   {k:"ast",label:"AST"},
@@ -397,7 +398,6 @@ const COLS = [
   {k:"fg2",label:"2점"},
   {k:"ft",label:"1점"},
   {k:"foul",label:"PF"},
-  {k:"eff",label:"EFF",cls:"eff"},
 ];
 const PCOLS = [
   {k:"rank",label:"#",cls:"rank"},
@@ -408,10 +408,11 @@ const PCOLS = [
   {k:"loss",label:"패"},
   {k:"points",label:"승점",cls:"pts"},
 ];
-// 평균 스탯: 경기당 수치 (출전일·경기수는 제외, 파울은 유지)
+// 평균 스탯: 경기당 수치 (EFF를 앞에, 출전일·경기수 제외, 파울 유지)
 const ACOLS = [
   {k:"rank",label:"#",cls:"rank"},
   {k:"name",label:"선수"},
+  {k:"eff",label:"EFF",cls:"eff"},
   {k:"pts",label:"PTS",cls:"pts"},
   {k:"reb",label:"REB"},
   {k:"ast",label:"AST"},
@@ -421,7 +422,6 @@ const ACOLS = [
   {k:"fg2",label:"2점"},
   {k:"ft",label:"1점"},
   {k:"foul",label:"PF"},
-  {k:"eff",label:"EFF",cls:"eff"},
 ];
 
 // ===== storage (data.json 분리: 회원은 보기 전용, 운영자는 ?admin) =====
@@ -486,7 +486,7 @@ function aggregate(){
 
 let sortKey="eff", sortDir=-1;
 let pSortKey="points", pSortDir=-1;
-let aSortKey="pts", aSortDir=-1;
+let aSortKey="eff", aSortDir=-1;
 function render(){
   const data=aggregate();
   const empty=document.getElementById("emptyState");
