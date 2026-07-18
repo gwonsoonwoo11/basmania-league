@@ -1,8 +1,8 @@
 {
-  "updated": "2026-07-11T15:50:41.267Z",
+  "updated": "2026-07-18T10:18:13.185Z",
   "games": [
     {
-      "id": "g1783784955637j3o3",
+      "id": "g1784369849526hxmr",
       "gameNo": "260711-1",
       "rows": [
         {
@@ -140,7 +140,7 @@
       ]
     },
     {
-      "id": "g1783784955647t4lp",
+      "id": "g1784369849536p2nq",
       "gameNo": "260711-2",
       "rows": [
         {
@@ -290,7 +290,7 @@
       ]
     },
     {
-      "id": "g1783784955651o2ye",
+      "id": "g1784369849542jm74",
       "gameNo": "260711-3",
       "rows": [
         {
@@ -424,6 +424,456 @@
           "blk": 1,
           "foul": 4,
           "wld": "win"
+        }
+      ]
+    },
+    {
+      "id": "g1784369860389x3s4",
+      "gameNo": "260718-1",
+      "rows": [
+        {
+          "name": "윤경환",
+          "fg3": 0,
+          "fg2": 0,
+          "ft": 0,
+          "ast": 0,
+          "reb": 7,
+          "stl": 0,
+          "blk": 0,
+          "foul": 1,
+          "wld": "win"
+        },
+        {
+          "name": "한선우",
+          "fg3": 1,
+          "fg2": 0,
+          "ft": 0,
+          "ast": 3,
+          "reb": 1,
+          "stl": 1,
+          "blk": 0,
+          "foul": 1,
+          "wld": "win"
+        },
+        {
+          "name": "한종근",
+          "fg3": 0,
+          "fg2": 9,
+          "ft": 0,
+          "ast": 3,
+          "reb": 12,
+          "stl": 4,
+          "blk": 1,
+          "foul": 1,
+          "wld": "win"
+        },
+        {
+          "name": "박민수",
+          "fg3": 0,
+          "fg2": 6,
+          "ft": 0,
+          "ast": 2,
+          "reb": 1,
+          "stl": 0,
+          "blk": 0,
+          "foul": 1,
+          "wld": "win"
+        },
+        {
+          "name": "류동근",
+          "fg3": 0,
+          "fg2": 3,
+          "ft": 0,
+          "ast": 3,
+          "reb": 8,
+          "stl": 1,
+          "blk": 0,
+          "foul": 1,
+          "wld": "win"
+        },
+        {
+          "name": "임종준",
+          "fg3": 0,
+          "fg2": 0,
+          "ft": 0,
+          "ast": 2,
+          "reb": 1,
+          "stl": 1,
+          "blk": 0,
+          "foul": 1,
+          "wld": "win"
+        },
+        {
+          "name": "김택승",
+          "fg3": 0,
+          "fg2": 1,
+          "ft": 1,
+          "ast": 3,
+          "reb": 13,
+          "stl": 2,
+          "blk": 4,
+          "foul": 1,
+          "wld": "loss"
+        },
+        {
+          "name": "강윤혁",
+          "fg3": 0,
+          "fg2": 4,
+          "ft": 1,
+          "ast": 0,
+          "reb": 5,
+          "stl": 0,
+          "blk": 1,
+          "foul": 0,
+          "wld": "loss"
+        },
+        {
+          "name": "주수현",
+          "fg3": 1,
+          "fg2": 1,
+          "ft": 0,
+          "ast": 1,
+          "reb": 0,
+          "stl": 0,
+          "blk": 5,
+          "foul": 1,
+          "wld": "loss"
+        },
+        {
+          "name": "이우조",
+          "fg3": 0,
+          "fg2": 4,
+          "ft": 0,
+          "ast": 0,
+          "reb": 11,
+          "stl": 0,
+          "blk": 0,
+          "foul": 1,
+          "wld": "loss"
+        },
+        {
+          "name": "박용수",
+          "fg3": 0,
+          "fg2": 3,
+          "ft": 0,
+          "ast": 1,
+          "reb": 5,
+          "stl": 2,
+          "blk": 0,
+          "foul": 1,
+          "wld": "loss"
+        },
+        {
+          "name": "김민성",
+          "fg3": 0,
+          "fg2": 0,
+          "ft": 0,
+          "ast": 2,
+          "reb": 2,
+          "stl": 0,
+          "blk": 0,
+          "foul": 0,
+          "wld": "loss"
+        }
+      ]
+    },
+    {
+      "id": "g17843698603951gsa",
+      "gameNo": "260718-2",
+      "rows": [
+        {
+          "name": "강태원",
+          "fg3": 0,
+          "fg2": 0,
+          "ft": 0,
+          "ast": 1,
+          "reb": 3,
+          "stl": 0,
+          "blk": 0,
+          "foul": 3,
+          "wld": "loss"
+        },
+        {
+          "name": "권순우",
+          "fg3": 3,
+          "fg2": 2,
+          "ft": 0,
+          "ast": 0,
+          "reb": 0,
+          "stl": 0,
+          "blk": 0,
+          "foul": 0,
+          "wld": "loss"
+        },
+        {
+          "name": "홍웅비",
+          "fg3": 0,
+          "fg2": 1,
+          "ft": 0,
+          "ast": 4,
+          "reb": 6,
+          "stl": 3,
+          "blk": 1,
+          "foul": 2,
+          "wld": "loss"
+        },
+        {
+          "name": "최윤수",
+          "fg3": 0,
+          "fg2": 2,
+          "ft": 0,
+          "ast": 2,
+          "reb": 1,
+          "stl": 0,
+          "blk": 0,
+          "foul": 0,
+          "wld": "loss"
+        },
+        {
+          "name": "최재호",
+          "fg3": 0,
+          "fg2": 3,
+          "ft": 0,
+          "ast": 5,
+          "reb": 4,
+          "stl": 0,
+          "blk": 1,
+          "foul": 2,
+          "wld": "loss"
+        },
+        {
+          "name": "최현웅",
+          "fg3": 1,
+          "fg2": 8,
+          "ft": 0,
+          "ast": 2,
+          "reb": 6,
+          "stl": 0,
+          "blk": 1,
+          "foul": 1,
+          "wld": "loss"
+        },
+        {
+          "name": "주수현",
+          "fg3": 2,
+          "fg2": 4,
+          "ft": 0,
+          "ast": 3,
+          "reb": 4,
+          "stl": 1,
+          "blk": 0,
+          "foul": 2,
+          "wld": "win"
+        },
+        {
+          "name": "박용수",
+          "fg3": 3,
+          "fg2": 4,
+          "ft": 0,
+          "ast": 2,
+          "reb": 4,
+          "stl": 0,
+          "blk": 0,
+          "foul": 0,
+          "wld": "win"
+        },
+        {
+          "name": "김택승",
+          "fg3": 0,
+          "fg2": 1,
+          "ft": 1,
+          "ast": 3,
+          "reb": 4,
+          "stl": 0,
+          "blk": 0,
+          "foul": 2,
+          "wld": "win"
+        },
+        {
+          "name": "이우조",
+          "fg3": 0,
+          "fg2": 3,
+          "ft": 0,
+          "ast": 2,
+          "reb": 9,
+          "stl": 0,
+          "blk": 0,
+          "foul": 3,
+          "wld": "win"
+        },
+        {
+          "name": "김민성",
+          "fg3": 1,
+          "fg2": 1,
+          "ft": 0,
+          "ast": 6,
+          "reb": 2,
+          "stl": 1,
+          "blk": 0,
+          "foul": 1,
+          "wld": "win"
+        },
+        {
+          "name": "강윤혁",
+          "fg3": 0,
+          "fg2": 5,
+          "ft": 0,
+          "ast": 0,
+          "reb": 7,
+          "stl": 0,
+          "blk": 0,
+          "foul": 2,
+          "wld": "win"
+        }
+      ]
+    },
+    {
+      "id": "g1784369860399bbrm",
+      "gameNo": "260718-3",
+      "rows": [
+        {
+          "name": "권순우",
+          "fg3": 1,
+          "fg2": 2,
+          "ft": 0,
+          "ast": 4,
+          "reb": 2,
+          "stl": 1,
+          "blk": 0,
+          "foul": 1,
+          "wld": "win"
+        },
+        {
+          "name": "최현웅",
+          "fg3": 0,
+          "fg2": 2,
+          "ft": 0,
+          "ast": 3,
+          "reb": 6,
+          "stl": 2,
+          "blk": 0,
+          "foul": 1,
+          "wld": "win"
+        },
+        {
+          "name": "강태원",
+          "fg3": 0,
+          "fg2": 0,
+          "ft": 0,
+          "ast": 3,
+          "reb": 3,
+          "stl": 0,
+          "blk": 0,
+          "foul": 1,
+          "wld": "win"
+        },
+        {
+          "name": "최윤수",
+          "fg3": 0,
+          "fg2": 5,
+          "ft": 0,
+          "ast": 1,
+          "reb": 7,
+          "stl": 0,
+          "blk": 2,
+          "foul": 1,
+          "wld": "win"
+        },
+        {
+          "name": "홍웅비",
+          "fg3": 1,
+          "fg2": 5,
+          "ft": 0,
+          "ast": 0,
+          "reb": 8,
+          "stl": 2,
+          "blk": 0,
+          "foul": 4,
+          "wld": "win"
+        },
+        {
+          "name": "최재호",
+          "fg3": 0,
+          "fg2": 4,
+          "ft": 0,
+          "ast": 1,
+          "reb": 8,
+          "stl": 2,
+          "blk": 0,
+          "foul": 0,
+          "wld": "win"
+        },
+        {
+          "name": "한선우",
+          "fg3": 0,
+          "fg2": 0,
+          "ft": 0,
+          "ast": 0,
+          "reb": 2,
+          "stl": 0,
+          "blk": 0,
+          "foul": 0,
+          "wld": "loss"
+        },
+        {
+          "name": "한종근",
+          "fg3": 0,
+          "fg2": 3,
+          "ft": 0,
+          "ast": 1,
+          "reb": 9,
+          "stl": 2,
+          "blk": 0,
+          "foul": 1,
+          "wld": "loss"
+        },
+        {
+          "name": "박민수",
+          "fg3": 0,
+          "fg2": 7,
+          "ft": 0,
+          "ast": 0,
+          "reb": 0,
+          "stl": 1,
+          "blk": 1,
+          "foul": 2,
+          "wld": "loss"
+        },
+        {
+          "name": "류동근",
+          "fg3": 0,
+          "fg2": 3,
+          "ft": 0,
+          "ast": 1,
+          "reb": 5,
+          "stl": 0,
+          "blk": 0,
+          "foul": 3,
+          "wld": "loss"
+        },
+        {
+          "name": "윤경환",
+          "fg3": 0,
+          "fg2": 1,
+          "ft": 0,
+          "ast": 1,
+          "reb": 13,
+          "stl": 0,
+          "blk": 2,
+          "foul": 2,
+          "wld": "loss"
+        },
+        {
+          "name": "임종준",
+          "fg3": 0,
+          "fg2": 3,
+          "ft": 3,
+          "ast": 1,
+          "reb": 0,
+          "stl": 1,
+          "blk": 0,
+          "foul": 0,
+          "wld": "loss"
         }
       ]
     }
